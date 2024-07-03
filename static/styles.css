@@ -1,0 +1,122 @@
+h1 {
+    color: red;
+}
+p {
+    color: green;
+}
+a:link {
+    color: pink;
+}
+a:visited {
+    color: green;
+}
+a:hover {
+    text-decoration: none;
+}
+.special {
+    color: orange;
+    font-weight: bold;
+}
+li em {
+    color: rebeccapurple
+}
+h1 + p {
+    font-size: 200%;
+}
+#mega-special {
+    color: green;
+}
+
+.title {
+    text-align: center;
+}
+
+.flex {
+    display: flex;
+    border-radius: 5px;
+    border-color: rgba(0, 128, 0, 0.2);
+    border-width: 0.3rem;
+    border-style: solid;
+}
+
+.grid {
+    display: grid;
+    border-radius: 5px;
+    border-color: rgba(11, 183, 180, 0.2);
+    border-width: 0.3rem;
+    border-style: solid;
+}
+
+ul.flex.f0 {
+    /* flex item */
+    /* flex container */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    /* item */
+    list-style-type: none;
+    margin: 0;
+    padding: 20px;
+}
+
+ul.grid.g0 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: masonry;
+}
+
+/* Alert category, contains header + table|column */
+.flex.f1 {
+    /* flex item */
+    margin: auto;
+    /* flex container */
+    /* will always have: c2 header and a c2 container*/
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    /* item */
+    background-color: rgba(198, 130, 234, 0.237);
+    
+}
+
+
+/* Header of alert category */
+li.flex.f1-header {
+    /* flex item */
+    justify-self: flex-start;
+    /*align-self: flex-start;
+    /* flex container */
+    /* nothing, just text */
+    /* item */
+
+}
+
+/* Table view of alerts */
+.flex.f1-table {
+    /* flex item */
+    justify-self: flex-end;
+    /* flex container */
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    /* item */
+}
+
+/* Column view of alerts */
+ol.flex.f1-column {
+    /* flex item */
+    justify-self: flex-end;
+    /* flex container */
+    flex-flow: column nowrap;
+    justify-content: space-around;
+    align-items: stretch;
+    /* item */
+}
+
+/* The alerts themselves */
+.flex.f2 {
+    /* flex item */
+    /* flex container */
+    /* item */
+}
