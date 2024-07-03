@@ -38,6 +38,8 @@ async def poll_task(sleep: Any):
     while True:
         start = time.time()
         res, err = await poll_grafana(api_url, api_token)
+        parse(res)
+        print("am scapat!")
         end = time.time()
         delta = max(0, end-start)
         total_polls += 1
@@ -74,7 +76,22 @@ async def lifespan(app: FastAPI):
     global poll_task_handle
     await start_polling(polling_interval)
     yield
-
+# JSON PARSING
+def parse(jsonData:dict):
+    rules = jsonData["data"]["groups"][0]["rules"]
+    for rule in rules:
+        alerts = rule["alerts"]
+        i = 0;
+        for i,alert in enumerate(alerts):
+            print(i)
+            alertname = alert["labels"]["alertname"]
+            match alertname:
+                case "ping_exporter_rule":
+                    print(f"{alert["labels"]["alias"]}:{alert["state"]}")
+                case "proxmox_exporter_cpu":
+                    print(f"{alert["labels"]["id"]}:{alert["state"]}")
+                case "snmp_rule":
+                    print(f"AP:{alert["labels"]["mwApTableIndex"]}:{alert["state"]}")
 # Webserver
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
