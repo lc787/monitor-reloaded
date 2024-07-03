@@ -25,7 +25,14 @@ polling_interval: float = 5.0
 poll_result = None
 poll_task_handle: asyncio.Task = None
 total_polls = 0
-
+parsedJson= {}
+"""
+        for alertName,alerts in parsedJson.items():
+            print(f"\n\n {alertName}\n\n")
+            for alert in alerts:
+                for identifier,status in alert.items():
+                    print(f"host:{identifier},status:{status}")
+"""
 async def poll_grafana(api_url: str, api_token: str) -> str:
     r = requests.get(api_url, headers={'Authorization': f'Bearer {api_token}'}, )
     if r.status_code != requests.codes.ok:
@@ -37,11 +44,9 @@ async def poll_task(sleep: Any):
     global total_polls
     print(f'The new sleep is {sleep}')
     while True:
-        print("am intrat")
         start = time.time()
         res, err = await poll_grafana(api_url, api_token)
         parse(res)
-        print("am scapat!")
         end = time.time()
         delta = max(0, end-start)
         total_polls += 1
@@ -80,24 +85,28 @@ async def lifespan(app: FastAPI):
     yield
 # JSON PARSING
 def parse(jsonData:dict):
-
+    global  parsedJson
     rules = jsonData["data"]["groups"][0]["rules"]
     for rule in rules:
         alerts = rule["alerts"]
-        i = 0;
-        
+        alertname = rule["name"]
+        parsedJson[alertname] = [];
         for alert in alerts:
-            alertname = alert["labels"]["alertname"]
+            # parsedJson[numeRegulaALerta] => lista de dictionare
+            # fiecare dictionar este o pereche de cheie valoare, key=Identifier(id,alias,etc...) Value=Status(normal/firing)
             match alertname:
                 case "ping_exporter_rule":
-                    print(f"{alert["labels"]["alias"]}:{alert["state"]}")
+                    parsedJson[alertname].append({alert["labels"]["alias"]:alert["state"]})
                 case "proxmox_exporter_cpu":
-                    print(f"{alert["labels"]["id"]}:{alert["state"]}")
+                    parsedJson[alertname].append({alert["labels"]["id"]:alert["state"]})
                 case "snmp_rule":
-                    print(f"AP:{alert["labels"]["mwApTableIndex"]}:{alert["state"]}")
+                    parsedJson[alertname].append({"AP"+alert["labels"]["mwApTableIndex"]:alert["state"]})
                 # temperaturi
                 case _ if alertname.startswith("temperature_alert"):
-                    print(f"{alertname}:{alert["state"]}")
+                    parsedJson[alertname].append({alertname:alert["state"]})
+        
+
+
 # Webserver
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
