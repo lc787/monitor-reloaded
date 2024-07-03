@@ -1,6 +1,6 @@
 # Running a dev server
 0. Get python 3.12
-1. Install requirements.txt:
+1. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
@@ -9,7 +9,7 @@ pip install -r requirements.txt
 cp .env.example .env
 nvim .env
 ```
-3. Run project
+3. Run project:
 ```bash
 fastapi dev main.py
 ```
