@@ -77,6 +77,7 @@ async def lifespan(app: FastAPI):
 
 # Webserver
 app = FastAPI(lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Routes
@@ -85,6 +86,8 @@ async def update_polling_interval(new_interval: float):
     await change_polling_interval(new_interval)
     return new_interval
 
-@app.put("/")
-async def get_index():
-    pass
+@app.get("/", response_class=HTMLResponse)
+async def get_index(request: Request):
+    return templates.TemplateResponse(
+        name="index.html", context={"request": request}
+        )
