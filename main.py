@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 import requests
 
+import re
 import asyncio
 import time
 from typing import Any
@@ -36,6 +37,7 @@ async def poll_task(sleep: Any):
     global total_polls
     print(f'The new sleep is {sleep}')
     while True:
+        print("am intrat")
         start = time.time()
         res, err = await poll_grafana(api_url, api_token)
         parse(res)
@@ -78,12 +80,13 @@ async def lifespan(app: FastAPI):
     yield
 # JSON PARSING
 def parse(jsonData:dict):
+
     rules = jsonData["data"]["groups"][0]["rules"]
     for rule in rules:
         alerts = rule["alerts"]
         i = 0;
-        for i,alert in enumerate(alerts):
-            print(i)
+        
+        for alert in alerts:
             alertname = alert["labels"]["alertname"]
             match alertname:
                 case "ping_exporter_rule":
@@ -92,6 +95,9 @@ def parse(jsonData:dict):
                     print(f"{alert["labels"]["id"]}:{alert["state"]}")
                 case "snmp_rule":
                     print(f"AP:{alert["labels"]["mwApTableIndex"]}:{alert["state"]}")
+                # temperaturi
+                case _ if alertname.startswith("temperature_alert"):
+                    print(f"{alertname}:{alert["state"]}")
 # Webserver
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
