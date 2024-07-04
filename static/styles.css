@@ -1,28 +1,42 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #222629;
+    color: #dcdce6;
+}
+
 h1 {
-    color: red;
+    color: #86C232;
 }
+
 p {
-    color: green;
+    color: #dcdce6;
 }
+
 a:link {
-    color: pink;
+    color: #86C232;
 }
+
 a:visited {
-    color: green;
+    color: #618c22;
 }
+
 a:hover {
     text-decoration: none;
 }
+
 .special {
-    color: orange;
+    color: #99f31c;
     font-weight: bold;
 }
+
 li em {
-    color: rebeccapurple
+    color: rebeccapurple;
 }
+
 h1 + p {
     font-size: 200%;
 }
+
 #mega-special {
     color: green;
 }
@@ -34,17 +48,13 @@ h1 + p {
 .flex {
     display: flex;
     border-radius: 5px;
-    border-color: rgba(0, 128, 0, 0.2);
+    border-color: #474b4f;
     border-width: 0.3rem;
     border-style: solid;
 }
 
 .grid {
     display: grid;
-    border-radius: 5px;
-    border-color: rgba(11, 183, 180, 0.2);
-    border-width: 0.3rem;
-    border-style: solid;
 }
 
 ul.flex.f0 {
@@ -61,25 +71,25 @@ ul.flex.f0 {
 }
 
 ul.grid.g0 {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Added for responsiveness of browser width */
+    gap: 1rem; /* Added for multiple line spacing */
     grid-template-rows: masonry;
 }
 
 /* Alert category, contains header + table|column */
 .flex.f1 {
     /* flex item */
-    margin: auto;
+    /*margin: auto;*/
     /* flex container */
-    /* will always have: c2 header and a c2 container*/
+    /* will always have: c2 header and a c2 container */
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
     /* item */
-    background-color: rgba(198, 130, 234, 0.237);
-    
+    background-color: #474b4f;
+    /*padding: 0.5rem 0 0.5rem 0;*/
 }
-
 
 /* Header of alert category */
 li.flex.f1-header {
@@ -89,7 +99,6 @@ li.flex.f1-header {
     /* flex container */
     /* nothing, just text */
     /* item */
-
 }
 
 /* Table view of alerts */
@@ -101,6 +110,9 @@ li.flex.f1-header {
     justify-content: flex-start;
     align-items: stretch;
     /* item */
+    flex-direction: column;
+    padding-left: 0;
+    width: 100%;
 }
 
 /* Column view of alerts */
@@ -112,11 +124,17 @@ ol.flex.f1-column {
     justify-content: space-around;
     align-items: stretch;
     /* item */
+    padding-left: 0;
+    margin-left: 0;
+    width: 100%;
 }
 
 /* The alerts themselves */
 .flex.f2 {
     /* flex item */
-    /* flex container */
-    /* item */
+    list-style-type: none;
+    padding: 10px 20px;
+    margin: 2px 0;
+    background-color: #e47316;
+    color: #fff;
 }

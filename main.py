@@ -50,6 +50,7 @@ async def poll_grafana(api_url: str, api_token: str) -> str:
         return None, r.status_code
     return r.json(), None
 
+
 async def poll_task(sleep: Any):
     global total_polls, poll_result_parsed, poll_result_templated
     print(f'The new sleep is {sleep}')
@@ -59,13 +60,14 @@ async def poll_task(sleep: Any):
         poll_result_parsed = parse(res)
         print(json.dumps(poll_result_parsed))
         end = time.time()
-        delta = max(0, end-start)
+        delta = max(0, end - start)
         total_polls += 1
         if err != None:
             print(f'Epic fail. Error code: {err}')
         else:
             print(f'Total requests: {total_polls}')
         await asyncio.sleep(sleep - delta)
+
 
 async def stop_polling():
     global poll_task_handle
@@ -75,6 +77,7 @@ async def stop_polling():
     except asyncio.CancelledError:
         pass
 
+
 async def start_polling(interval: float):
     global poll_task_handle
     # Point of failure: don't start a new task unless the other one is finished
@@ -83,11 +86,13 @@ async def start_polling(interval: float):
         await stop_polling()
     poll_task_handle = asyncio.create_task(poll_task(interval))
 
+
 async def change_polling_interval(new_interval: float):
     global polling_interval
     await stop_polling()
     polling_interval = new_interval
     await start_polling(new_interval)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -136,6 +141,7 @@ def template_infra(request: Request, state: InfraState):
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
 # Routes
 @app.put("/polling_interval")
 async def update_polling_interval(new_interval: float) -> float:
@@ -145,7 +151,6 @@ async def update_polling_interval(new_interval: float) -> float:
 @app.get("/polling_interval")
 def get_polling_interval() -> float:
     return polling_interval
-
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
