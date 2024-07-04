@@ -8,7 +8,8 @@
   </head>
   <body>
     <h1 class="title">Graphic design is my passion</h1>
-    <ul class="grid g0">
+    <button hx-target="#main-grid" hx-get="/infra" hx-swap="innerHTML">Manually poll</button>
+    <ul id="main-grid" class="grid g0">
       <li class="flex f1">
         <h2 class="flex f1-header">APs</h2>
         <ol class="flex f1-table">
