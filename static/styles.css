@@ -57,6 +57,7 @@ h1 + p {
     display: grid;
 }
 
+
 ul.flex.f0 {
     /* flex item */
     /* flex container */
@@ -136,4 +137,31 @@ ol.flex.f1-column {
     margin: 2px 0;
     background-color: #e47316;
     color: #fff;
+}
+
+/* Credit to Maurizio Rendon for the status effects */
+/* https://codepen.io/maurirz3/pen/OJJoKXp, licensed under MIT Licensed */
+
+.flex.f2.status-ok {
+    background: #4CAF50;
+}
+
+.flex.f2.status-error {
+    background: repeating-linear-gradient(
+        180deg,
+        #fdb241,
+        #fdb241 2px,
+        #fed998 4px,
+        #fed998 6px
+      );
+}
+
+.flex.f2.status-critical {
+    background: repeating-linear-gradient(
+        -45deg,
+        #FF5252,
+        #FF5252 2px,
+        #fc9598 4px,
+        #fc9598 6px
+      );
 }
