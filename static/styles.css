@@ -147,21 +147,25 @@ ol.flex.f1-column {
 }
 
 .flex.f2.status-error {
-    background: repeating-linear-gradient(
+    /*background: repeating-linear-gradient(
         180deg,
         #fdb241,
         #fdb241 2px,
         #fed998 4px,
         #fed998 6px
-      );
+      );*/
+    background-color: #fdb241;
+    outline: invert;
 }
 
 .flex.f2.status-critical {
-    background: repeating-linear-gradient(
+    /*background: repeating-linear-gradient(
         -45deg,
         #FF5252,
         #FF5252 2px,
         #fc9598 4px,
         #fc9598 6px
-      );
+      );*/
+    background-color: #FF5252;
+    outline: invert;
 }
