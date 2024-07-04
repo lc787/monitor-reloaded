@@ -1,0 +1,10 @@
+{% for rule in infra %}
+<h2 class="flex f1-header">{{rule}}</h2>
+<ol class="flex f1-table">
+    {% for alert in infra[rule] %}
+    <li class="flex f2">
+        {{ alert["id"] }}
+    </li>
+    {% endfor %}
+</ol>
+{% endfor %}
