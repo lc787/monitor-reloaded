@@ -109,6 +109,7 @@ def parse(data: dict) -> InfraState:
     for rule in rules:
         alerts = rule["alerts"]
         alertname = rule["name"]
+        # TODO: sort lists by id
         for alert in alerts:
             # parsed[numeRegulaALerta] => lista de dictionare
             # fiecare dictionar este o pereche de cheie valoare, key=Identifier(id,alias,etc...) Value=Status(normal/firing)
@@ -123,8 +124,8 @@ def parse(data: dict) -> InfraState:
                     parsed["aps"].append({"id": "AP"+alert["labels"]["mwApTableIndex"],
                                           "state": alert["state"]})
                 # temperaturi
-                case _ if alertname.startswith("temperature_alert"):
-                    parsed["temps"].append({"id": alertname,
+                case _ if alertname.startswith("temperature_alert_"):
+                    parsed["temps"].append({"id": alertname[len("temperature_alert_"):],
                                             "state": alert["state"]})
     return parsed
 
