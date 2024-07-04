@@ -1,4 +1,5 @@
 {% for rule in infra %}
+<li class="flex f1">
 <h2 class="flex f1-header">{{rule}}</h2>
 <ol class="flex f1-table">
     {% for alert in infra[rule] %}
@@ -7,4 +8,5 @@
     </li>
     {% endfor %}
 </ol>
+</li>
 {% endfor %}
