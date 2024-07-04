@@ -110,23 +110,19 @@ def parse(data: dict) -> InfraState:
         alerts = rule["alerts"]
         alertname = rule["name"]
         # TODO: sort lists by id
+        build_item = lambda alert, id_builder: {"id": id_builder(alert), "state": "ok" if alert["state"] == "Normal" else "error"}
         for alert in alerts:
-            # parsed[numeRegulaALerta] => lista de dictionare
-            # fiecare dictionar este o pereche de cheie valoare, key=Identifier(id,alias,etc...) Value=Status(normal/firing)
+            build = lambda id_builder: build_item(alert, id_builder)
             match alertname:
                 case "ping_exporter_rule":
-                    parsed["uptime"].append({"id": alert["labels"]["alias"],
-                                             "state": alert["state"]})
+                    parsed["uptime"].append(build(lambda a: a["labels"]["alias"]))
                 case "proxmox_exporter_cpu":
-                    parsed["proxmox"].append({"id": alert["labels"]["id"],
-                                              "state":alert["state"]})
+                    parsed["proxmox"].append(build(lambda a: a["labels"]["id"]))
                 case "snmp_rule":
-                    parsed["aps"].append({"id": "AP"+alert["labels"]["mwApTableIndex"],
-                                          "state": alert["state"]})
+                    parsed["aps"].append(build(lambda a: "AP"+a["labels"]["mwApTableIndex"]))
                 # temperaturi
                 case _ if alertname.startswith("temperature_alert_"):
-                    parsed["temps"].append({"id": alertname[len("temperature_alert_"):],
-                                            "state": alert["state"]})
+                    parsed["temps"].append(build(lambda a: alertname[len("temperature_alert_"):]))
     return parsed
 
 def template_infra(request: Request, state: InfraState):
@@ -164,5 +160,4 @@ async def get_index(request: Request):
 @app.get("/infra", response_class=HTMLResponse)
 async def get_infra(request: Request):
     poll_result_templated = template_infra(request, poll_result_parsed)
-    print(poll_result_templated)
     return poll_result_templated
