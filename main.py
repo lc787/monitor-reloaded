@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 import requests
+import json
 
 import re
 import asyncio
@@ -25,9 +26,18 @@ polling_interval: float = 5.0
 poll_result = None
 poll_task_handle: asyncio.Task = None
 total_polls = 0
-parsedJson= {}
+
+type Status = str
+type Id = str
+type Rule = str
+type InfraState = dict[Rule, list[dict[str, Id|Status]]] 
+poll_result_parsed: InfraState = {}
+
+# Templates
+templates = Jinja2Templates(directory="templates")
+poll_result_templated = None
 """
-        for alertName,alerts in parsedJson.items():
+        for alertName,alerts in poll_result_parsed.items():
             print(f"\n\n {alertName}\n\n")
             for alert in alerts:
                 for identifier,status in alert.items():
@@ -41,12 +51,13 @@ async def poll_grafana(api_url: str, api_token: str) -> str:
     return r.json(), None
 
 async def poll_task(sleep: Any):
-    global total_polls
+    global total_polls, poll_result_parsed, poll_result_templated
     print(f'The new sleep is {sleep}')
     while True:
         start = time.time()
         res, err = await poll_grafana(api_url, api_token)
-        parse(res)
+        poll_result_parsed = parse(res)
+        print(json.dumps(poll_result_parsed))
         end = time.time()
         delta = max(0, end-start)
         total_polls += 1
@@ -83,43 +94,69 @@ async def lifespan(app: FastAPI):
     global poll_task_handle
     await start_polling(polling_interval)
     yield
+
 # JSON PARSING
-def parse(jsonData:dict):
-    global  parsedJson
-    rules = jsonData["data"]["groups"][0]["rules"]
+def parse(data: dict) -> InfraState:
+    parsed: InfraState = {}
+    rules = data["data"]["groups"][0]["rules"]
+    for key in ["uptime", "proxmox", "aps", "temps"]:
+        parsed[key] = []
     for rule in rules:
         alerts = rule["alerts"]
         alertname = rule["name"]
-        parsedJson[alertname] = [];
         for alert in alerts:
-            # parsedJson[numeRegulaALerta] => lista de dictionare
+            # parsed[numeRegulaALerta] => lista de dictionare
             # fiecare dictionar este o pereche de cheie valoare, key=Identifier(id,alias,etc...) Value=Status(normal/firing)
             match alertname:
                 case "ping_exporter_rule":
-                    parsedJson[alertname].append({alert["labels"]["alias"]:alert["state"]})
+                    parsed["uptime"].append({"id": alert["labels"]["alias"],
+                                             "state": alert["state"]})
                 case "proxmox_exporter_cpu":
-                    parsedJson[alertname].append({alert["labels"]["id"]:alert["state"]})
+                    parsed["proxmox"].append({"id": alert["labels"]["id"],
+                                              "state":alert["state"]})
                 case "snmp_rule":
-                    parsedJson[alertname].append({"AP"+alert["labels"]["mwApTableIndex"]:alert["state"]})
+                    parsed["aps"].append({"id": "AP"+alert["labels"]["mwApTableIndex"],
+                                          "state": alert["state"]})
                 # temperaturi
                 case _ if alertname.startswith("temperature_alert"):
-                    parsedJson[alertname].append({alertname:alert["state"]})
-        
+                    parsed["temps"].append({"id": alertname,
+                                            "state": alert["state"]})
+    return parsed
 
+def template_infra(request: Request, state: InfraState):
+    return templates.TemplateResponse(
+        request,
+        "infra.html",
+        context={
+            "infra": poll_result_parsed,
+        }
+    )
 
 # Webserver
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
 # Routes
 @app.put("/polling_interval")
-async def update_polling_interval(new_interval: float):
+async def update_polling_interval(new_interval: float) -> float:
     await change_polling_interval(new_interval)
     return new_interval
+
+@app.get("/polling_interval")
+def get_polling_interval() -> float:
+    return polling_interval
+
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
     return templates.TemplateResponse(
-        name="index.html", context={"request": request}
-        )
+        request=request,
+        name="index.html",
+    )
+
+# The html view of the entire infrastructure
+@app.get("/infra", response_class=HTMLResponse)
+async def get_infra(request: Request):
+    poll_result_templated = template_infra(request, poll_result_parsed)
+    print(poll_result_templated)
+    return poll_result_templated
