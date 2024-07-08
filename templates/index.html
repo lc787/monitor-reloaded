@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
     <link href="{{url_for('static', path='/styles.css')}}" rel="stylesheet">
+    <script src="{{ url_for ('static', path='dvd.js')}}" defer></script>
   </head>
   <body>
+    <img id="dvd" class="gif" src="{{url_for('static',path='rover.gif')}}" alt="xp_rover">
+    <img id="dvd2" class="gif" src="{{ url_for('static',path='bonzi_buddy.gif')}}" alt="bonzi_buddy">
     <h1 class="title">Graphic design is my passion</h1>
     <button hx-trigger="click, load" hx-target="#main-grid" 
             hx-get="/infra" hx-swap="innerHTML">Manually poll</button>
