@@ -53,19 +53,15 @@ async def poll_grafana(api_url: str, api_token: str) -> str:
 
 async def poll_task(sleep: Any):
     global total_polls, poll_result_parsed, poll_result_templated
-    print(f'The new sleep is {sleep}')
     while True:
         start = time.time()
         res, err = await poll_grafana(api_url, api_token)
         poll_result_parsed = parse(res)
-        print(json.dumps(poll_result_parsed))
         end = time.time()
         delta = max(0, end - start)
         total_polls += 1
         if err != None:
             print(f'Epic fail. Error code: {err}')
-        else:
-            print(f'Total requests: {total_polls}')
         await asyncio.sleep(sleep - delta)
 
 
@@ -110,7 +106,10 @@ def parse(data: dict) -> InfraState:
         alerts = rule["alerts"]
         alertname = rule["name"]
         # TODO: sort lists by id
-        build_item = lambda alert, id_builder: {"id": id_builder(alert), "state": "ok" if alert["state"] == "Normal" else "error"}
+        build_item = lambda alert, id_builder: {
+                "id": id_builder(alert),
+                "state": "ok" if alert["state"] == "Normal" else "error",
+            }
         for alert in alerts:
             build = lambda id_builder: build_item(alert, id_builder)
             match alertname:
