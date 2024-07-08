@@ -160,7 +160,7 @@ async def get_index(request: Request):
     )
 
 # The html view of the entire infrastructure
-@app.get("/infra", response_class=HTMLResponse)
+@app.get("/poll", response_class=HTMLResponse)
 async def get_infra(request: Request):
     poll_result_templated = template_infra(request, poll_result_parsed)
     return poll_result_templated

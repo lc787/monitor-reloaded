@@ -9,7 +9,7 @@
     <script src="{{ url_for ('static',path='index.js') }}" defer></script>
   </head>
   <body hx-trigger="load, every 3s" hx-target="#main-grid" 
-        hx-get="/infra" hx-swap="innerHTML">
+        hx-get="/poll" hx-swap="innerHTML">
     <img id="dvd" class="gif" src="{{ url_for('static',path='rover.gif') }}" alt="xp_rover">
     <img id="dvd2" class="gif" src="{{ url_for('static',path='bonzi_buddy.gif') }}" alt="bonzi_buddy">
     <h1 class="title status-ok" id="elapsedTime">Graphic design is my passion</h1>

@@ -1,5 +1,5 @@
 document.body.addEventListener('htmx:afterRequest', (ev) => {
-    if (ev.detail.requestConfig.path == "/infra" && ev.detail.successful) {
+    if (ev.detail.requestConfig.path == "/poll" && ev.detail.successful) {
         resetTimer();
     }
 })
