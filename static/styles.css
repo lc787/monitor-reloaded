@@ -4,10 +4,6 @@ body {
     color: #dcdce6;
 }
 
-h1 {
-    color: #86C232;
-}
-
 p {
     color: #dcdce6;
 }
@@ -43,6 +39,14 @@ h1 + p {
 
 .title {
     text-align: center;
+}
+
+.title.status-ok {
+    color: #86C232;
+}
+
+.title.status-critical {
+    color: #FF5252;
 }
 
 .flex {

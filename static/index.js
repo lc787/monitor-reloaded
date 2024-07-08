@@ -1,5 +1,5 @@
 document.body.addEventListener('htmx:afterRequest', (ev) => {
-    if (ev.detail.requestConfig.path == "/infra") {
+    if (ev.detail.requestConfig.path == "/infra" && ev.detail.successful) {
         resetTimer();
     }
 })
@@ -19,5 +19,12 @@ function resetTimer() {
 }
 
 function renderLCR(time){ 
-    elapsedTimeElem.innerHTML = "Last completed request: " + time + "s ago";
+    elapsedTimeElem.innerHTML = "Last successful request: " + time + "s ago";
+    if (time > 5) {
+        elapsedTimeElem.classList.remove('status-ok');
+        elapsedTimeElem.classList.add('status-critical');
+    } else {
+        elapsedTimeElem.classList.add('status-ok');
+        elapsedTimeElem.classList.remove('status-critical');
+    }
 }
