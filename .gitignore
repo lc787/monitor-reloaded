@@ -1,4 +1,5 @@
 .python-version
+config.toml
 .env
 __pycache__/*
 .venv
