@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
     <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
-    <script src="{{ url_for ('static', path='dvd.js') }}" defer></script>
-    <script src="{{ url_for ('static',path='index.js') }}" defer></script>
+    <script src="{{ url_for('static', path='dvd.js') }}" defer></script>
+    <script src="{{ url_for('static', path='timer.js') }}" defer></script>
   </head>
   <body hx-trigger="load, every 3s" hx-target="#main-grid" 
-        hx-get="/poll" hx-swap="innerHTML">
-    <img id="dvd" class="gif" src="{{ url_for('static',path='rover.gif') }}" alt="xp_rover">
-    <img id="dvd2" class="gif" src="{{ url_for('static',path='bonzi_buddy.gif') }}" alt="bonzi_buddy">
+        hx-get="{{ url_for('get_infra') }}" hx-swap="innerHTML"
+        hx-on::after-request="if (event.detail.successful) { resetTimer(this.firstElementChild); }">
     <h1 class="title status-ok" id="elapsedTime">Graphic design is my passion</h1>
     <ul id="main-grid" class="grid f0">
     </ul>
+    <img id="dvd" class="gif" src="{{ url_for('static',path='rover.gif') }}" alt="xp_rover">
+    <img id="dvd2" class="gif" src="{{ url_for('static',path='bonzi_buddy.gif') }}" alt="bonzi_buddy">
   </body>
 </html>
