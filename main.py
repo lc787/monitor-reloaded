@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from parse import parse, InfraState
@@ -14,7 +13,6 @@ import json
 import re
 import asyncio
 import time
-from typing import Any
 from contextlib import asynccontextmanager
 
 import tomllib
@@ -35,23 +33,17 @@ poll_result_parsed: InfraState = {}
 # Templates
 templates = Jinja2Templates(directory="templates")
 poll_result_templated = None
-"""
-        for alertName,alerts in poll_result_parsed.items():
-            print(f"\n\n {alertName}\n\n")
-            for alert in alerts:
-                for identifier,status in alert.items():
-                    print(f"host:{identifier},status:{status}")
-"""
-async def poll_grafana(api_url: str, api_token: str) -> str:
-    r = requests.get(api_url, headers={'Authorization': f'Bearer {api_token}'}, )
+
+async def poll_grafana(api_url: str, api_token: str) -> (str | None, int | None):
+    r = requests.get(api_url, headers={'Authorization': f'Bearer {api_token}'})
     if r.status_code != requests.codes.ok:
         print(f'Oops! Fucking failed. Error {r.status_code}')
         return None, r.status_code
     return r.json(), None
 
 
-async def poll_task(sleep: Any):
-    global total_polls, poll_result_parsed, poll_result_templated
+async def poll_task(sleep):
+    global total_polls, poll_result_parsed
     while True:
         start = time.time()
         res, err = await poll_grafana(cfg["polling"]["api_url"], cfg["polling"]["api_token"])

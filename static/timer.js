@@ -1,5 +1,4 @@
-const elapsedTimeElem = document.getElementById("elapsedTime");
-var totalSeconds = 0; // reset this to zero when you reset as below
+var totalSeconds = 0;
 const iterLSR = (elem) => { totalSeconds += 1; renderLSR(elem, totalSeconds); };
 
 var handle = null;
@@ -10,8 +9,6 @@ function resetTimer(elem) {
     renderLSR(elem, totalSeconds);
     handle = setInterval(iterLSR, 1000, elem);
 }
-
-// iterLSR -> 
 
 function renderLSR(elem, time){ 
     elem.innerHTML = "Last successful request: " + time + "s ago";

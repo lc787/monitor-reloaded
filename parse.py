@@ -3,7 +3,6 @@ type Id = str
 type Rule = str
 type InfraState = dict[Rule, list[dict[str, Id|Status]]] 
 
-# JSON PARSING
 def parse(data: dict) -> InfraState:
     parsed: InfraState = {}
     rules = data["data"]["groups"][0]["rules"]

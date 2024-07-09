@@ -4,39 +4,6 @@ body {
     color: #dcdce6;
 }
 
-p {
-    color: #dcdce6;
-}
-
-a:link {
-    color: #86C232;
-}
-
-a:visited {
-    color: #618c22;
-}
-
-a:hover {
-    text-decoration: none;
-}
-
-.special {
-    color: #99f31c;
-    font-weight: bold;
-}
-
-li em {
-    color: rebeccapurple;
-}
-
-h1 + p {
-    font-size: 200%;
-}
-
-#mega-special {
-    color: green;
-}
-
 .title {
     text-align: center;
 }
