@@ -1,0 +1,11 @@
+[polling]
+api_url = ""
+api_token = ""
+
+[routing]
+# The path on which the app is hosted. Leave empty for root.
+# Example: For "/monitor", the app will be hosted on example.com/monitor/
+base_path = "/"
+# Only allow requests with the Host header set to one of the following domains:
+# (wildcards allowed, leave default to allow any host - NOT RECOMMENDED)
+allowed_hosts = [ "*" ]

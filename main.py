@@ -3,8 +3,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from parse import parse, InfraState
+
 
 import requests
 import json
@@ -17,11 +19,16 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from os import getenv
+import tomllib
 
 # Env
-load_dotenv()
-api_url = getenv("API_URL")
-api_token = getenv("API_TOKEN")
+#load_dotenv()
+cfg: dict = {}
+with open("config.toml", "rb") as f:
+    cfg = tomllib.load(f)
+
+#api_url = getenv("API_URL")
+#api_token = getenv("API_TOKEN")
 
 # Server-wide polling
 polling_interval: float = 5.0
@@ -53,7 +60,7 @@ async def poll_task(sleep: Any):
     global total_polls, poll_result_parsed, poll_result_templated
     while True:
         start = time.time()
-        res, err = await poll_grafana(api_url, api_token)
+        res, err = await poll_grafana(cfg["polling"]["api_url"], cfg["polling"]["api_token"])
         poll_result_parsed = parse(res)
         end = time.time()
         delta = max(0, end - start)
@@ -104,9 +111,13 @@ def template_infra(request: Request, state: InfraState):
     )
 
 # Webserver
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, root_path=cfg["routing"]["base_path"])
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Middleware
+app.add_middleware(
+    TrustedHostMiddleware, allowed_hosts=cfg["routing"]["allowed_hosts"]
+)
 
 # Routes
 @app.put("/polling_interval")
