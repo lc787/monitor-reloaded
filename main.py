@@ -17,18 +17,12 @@ import time
 from typing import Any
 from contextlib import asynccontextmanager
 
-from dotenv import load_dotenv
-from os import getenv
 import tomllib
 
 # Env
-#load_dotenv()
 cfg: dict = {}
 with open("config.toml", "rb") as f:
     cfg = tomllib.load(f)
-
-#api_url = getenv("API_URL")
-#api_token = getenv("API_TOKEN")
 
 # Server-wide polling
 polling_interval: float = 5.0
