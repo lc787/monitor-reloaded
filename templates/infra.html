@@ -1,12 +1,16 @@
 {% for rule in infra %}
 <li class="flex f1">
-<h2 class="flex f1-header">{{rule}}</h2>
-<ol class="flex f1-table">
-    {% for alert in infra[rule] %}
-    <li class="flex f2 status-{{ alert["state"] }}">
-        {{ alert["id"] }}
-    </li>
-    {% endfor %}
-</ol>
+    <h2 class="flex f1-header">
+        {{-rule-}} {% if infra[rule]['timestamp'] != None -%}
+        <em class="timestamp" style="display: none">
+            {{- infra[rule]['timestamp'] -}}
+        </em>
+        {%- endif %}
+    </h2>
+    <ol class="flex f1-table">
+        {% for alert in infra[rule]['alerts'] %}
+        <li class="flex f2 status-{{ alert['status'] }}">{{ alert['id'] }}</li>
+        {% endfor %}
+    </ol>
 </li>
 {% endfor %}

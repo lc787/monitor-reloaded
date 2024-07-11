@@ -34,7 +34,7 @@ poll_result_parsed: InfraState = {}
 templates = Jinja2Templates(directory="templates")
 poll_result_templated = None
 
-async def poll_grafana(api_url: str, api_token: str) -> (str | None, int | None):
+async def poll_grafana(api_url: str, api_token: str) -> tuple[dict | None, int | None]:
     r = requests.get(api_url, headers={'Authorization': f'Bearer {api_token}'})
     if r.status_code != requests.codes.ok:
         print(f'Oops! Fucking failed. Error {r.status_code}')
@@ -46,8 +46,9 @@ async def poll_task(sleep):
     global total_polls, poll_result_parsed
     while True:
         start = time.time()
-        res, err = await poll_grafana(cfg["polling"]["api_url"], cfg["polling"]["api_token"])
-        poll_result_parsed = parse(res)
+        res, err = await poll_grafana(cfg['polling']['api_url'], cfg['polling']['api_token'])
+        if res is not None:
+            poll_result_parsed = parse(res)
         end = time.time()
         delta = max(0, end - start)
         total_polls += 1

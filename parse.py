@@ -1,35 +1,70 @@
+from collections.abc import Callable
+from typing import TypedDict, Any
+from datetime import datetime
+
 type Status = str
 type Id = str
-type Rule = str
-type InfraState = dict[Rule, list[dict[str, Id|Status]]] 
+type Timestamp = float # in ISO-8601 format
+class Alert(TypedDict):
+    id: Id
+    status: Status
+    ts: Timestamp | None
+class Category(TypedDict):
+    alerts: list[Alert]
+    timestamp: Timestamp | None
+type InfraState = dict[Id, Category]
+
+# Specify how to map rule names from the json to the internal view
+def rule_mapping(rn: str) -> Id | None:
+    match rn:
+        case "ping_exporter_rule":
+            return "uptime"
+        case "proxmox_exporter_cpu":
+            return "proxmox"
+        case "snmp_rule":
+            return "aps"
+        case _ if rn.startswith("temperature_alert_"):
+            return "temps"
+
+def unix_from_iso(date: str) -> float:
+    return datetime.fromisoformat(date).timestamp()
 
 def parse(data: dict) -> InfraState:
-    parsed: InfraState = {}
-    rules = data["data"]["groups"][0]["rules"]
-    keys = ["uptime", "proxmox", "aps", "temps"]
-    for key in keys:
-        parsed[key] = []
-    for rule in rules:
-        alerts = rule["alerts"]
-        alertname = rule["name"]
-        # TODO: sort lists by id
-        build_item = lambda alert, id_builder: {
-                "id": id_builder(alert),
-                "state": "ok" if alert["state"] == "Normal" else "error",
+    keys = ['uptime', 'proxmox', 'aps', 'temps']
+    parsed: InfraState = { k:{'alerts': [], 'timestamp': None} for k in keys }
+    for rule in data['data']['groups'][0]['rules']:
+        rulename = rule['name']
+        rule_id = rule_mapping(rulename)
+        if rule_id == None:
+            continue
+
+        # Temps needs special attention, because the json has all
+        # the temp alarms in the form of 'rules'. This, of course,
+        # we correct
+        if rule_id != 'temps':
+            parsed[rule_id]['timestamp'] = unix_from_iso(rule['lastEvaluation'])
+        # Make the alert builders
+        def build_alert_id(a: Any) -> Id:
+            match rule_id:
+                case 'uptime':
+                    return a['labels']['alias']
+                case 'proxmox':
+                    return a['labels']['id']
+                case 'aps':
+                    pad_ap_id = lambda ap_id: "0" + ap_id if int(ap_id) < 10 else ap_id
+                    return "AP-" + pad_ap_id(a['labels']['mwApTableIndex'])
+                case 'temps':
+                    return rulename[len("temperature_alert_"):]
+                case _:
+                    return ""
+        def build_alert(a: Any) -> Alert:
+            return {
+                'id': build_alert_id(a),
+                'status': "ok" if alert['state'] == "Normal" else "error",
+                'ts': unix_from_iso(rule['lastEvaluation']) if rule_id == 'temps' else None,
             }
-        for alert in alerts:
-            build = lambda id_builder: build_item(alert, id_builder)
-            ap_id = lambda ap_id: "0" + ap_id if int(ap_id) < 10 else ap_id 
-            match alertname:
-                case "ping_exporter_rule":
-                    parsed["uptime"].append(build(lambda a: a["labels"]["alias"]))
-                case "proxmox_exporter_cpu":
-                    parsed["proxmox"].append(build(lambda a: a["labels"]["id"]))
-                case "snmp_rule":
-                    parsed["aps"].append(build(lambda a: "AP-" + ap_id(a["labels"]["mwApTableIndex"])))
-                # temperaturi
-                case _ if alertname.startswith("temperature_alert_"):
-                    parsed["temps"].append(build(lambda a: alertname[len("temperature_alert_"):]))
+        for alert in rule['alerts']:
+            parsed[rule_id]['alerts'].append(build_alert(alert))
     for key in keys:
-        parsed[key].sort(key=lambda e: e["id"])
+        parsed[key]['alerts'].sort(key=lambda e: e['id'])
     return parsed
